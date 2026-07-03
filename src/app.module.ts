@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RutasModule } from './rutas/rutas.module';
+import { SyncModule } from './sync/sync.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RutasModule } from './rutas/rutas.module';
       }),
     }),
     RutasModule,
+    SyncModule,
   ],
   controllers: [AppController],
   providers: [AppService],
