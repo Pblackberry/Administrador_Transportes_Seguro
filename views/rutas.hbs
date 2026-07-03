@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema B — Panel Operativo de Rutas</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #14181f;
+      --bg-panel: #1b212b;
+      --bg-panel-hover: #212836;
+      --line: #2a3242;
+      --amber: #ffb020;
+      --amber-dim: #7a5a1c;
+      --text: #e8ebf1;
+      --text-dim: #8993a4;
+      --green: #4ade80;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 0%, rgba(255,176,32,0.06), transparent 40%);
+      color: var(--text);
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      padding: 40px 24px 80px;
+    }
+
+    .wrap { max-width: 920px; margin: 0 auto; }
+
+    header.top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+      margin-bottom: 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 10px var(--amber);
+    }
+
+    .brand h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .brand span.sub {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    .badge-live {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--green);
+      border: 1px solid rgba(74,222,128,0.35);
+      background: rgba(74,222,128,0.08);
+      padding: 5px 10px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-live::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    h2.section-title {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+      font-weight: 700;
+      margin: 0 0 16px;
+    }
+
+    /* --- Formulario --- */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stop-block {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 14px;
+      background: var(--bg);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .stop-block::before {
+      content: attr(data-stop);
+      position: absolute;
+      top: -9px;
+      left: 12px;
+      background: var(--bg-panel);
+      padding: 0 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    label.field-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: block;
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 11px;
+      color: var(--text);
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-size: 13.5px;
+      transition: border-color 0.15s ease;
+    }
+    input::placeholder { color: #545e70; }
+    input:focus {
+      outline: none;
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(255,176,32,0.12);
+    }
+
+    .stop-block input { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+    button.submit {
+      margin-top: 6px;
+      background: var(--amber);
+      color: #1a1200;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+      padding: 12px 22px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    button.submit:hover { filter: brightness(1.08); }
+    button.submit:active { transform: translateY(1px); }
+
+    /* --- Listado de rutas --- */
+    .route-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .route-card:hover { border-color: var(--amber-dim); background: var(--bg-panel-hover); }
+
+    .route-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .route-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .freq-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--amber);
+      background: rgba(255,176,32,0.1);
+      border: 1px solid rgba(255,176,32,0.25);
+      padding: 4px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .stops-list {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      border-top: 1px dashed var(--line);
+      padding-top: 12px;
+    }
+
+    .stops-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      align-items: baseline;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .stops-list li::before {
+      content: '→';
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stop-streets { color: var(--text-dim); font-size: 12px; }
+
+    .stop-time {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--green);
+      font-size: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+      padding: 40px 0;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <h1>Sistema B · Infraestructura de Transporte</h1>
+          <span class="sub">Catálogo operativo de rutas</span>
+        </div>
+      </div>
+      <div class="badge-live">MongoDB Atlas conectado</div>
+    </header>
+
+    <section class="panel">
+      <h2 class="section-title">Registrar nueva ruta</h2>
+      <form method="POST" action="/rutas">
+        <div class="field-group">
+          <div>
+            <label class="field-label">Nombre de la ruta</label>
+            <input type="text" name="nombre" placeholder="Ej. Ruta Express Norte" required>
+          </div>
+          <div>
+            <label class="field-label">Frecuencia (min)</label>
+            <input type="number" name="frecuencia" placeholder="15" required>
+          </div>
+
+          <div class="stop-block" data-stop="Parada 01">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" name="paradaNombre[]" placeholder="Parada La Y">
+            </div>
+            <div>
+              <label class="field-label">Calle principal</label>
+              <input type="text" name="paradaCallePrincipal[]" placeholder="Av 10 de Agosto">
+            </div>
+            <div>
+              <label class="field-label">Calle secundaria</label>
+              <input type="text" name="paradaCalleSecundaria[]" placeholder="Juan de Ascaray">
+            </div>
+            <div>
+              <label class="field-label">Tiempo (min)</label>
+              <input type="number" name="paradaTiempo[]" placeholder="163">
+            </div>
+          </div>
+
+          <div class="stop-block" data-stop="Parada 02">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" name="paradaNombre[]" placeholder="Parada Flor de Mayo">
+            </div>
+            <div>
+              <label class="field-label">Calle principal</label>
+              <input type="text" name="paradaCallePrincipal[]" placeholder="Av Amazonas">
+            </div>
+            <div>
+              <label class="field-label">Calle secundaria</label>
+              <input type="text" name="paradaCalleSecundaria[]" placeholder="República">
+            </div>
+            <div>
+              <label class="field-label">Tiempo (min)</label>
+              <input type="number" name="paradaTiempo[]" placeholder="166">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit">Guardar ruta</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 class="section-title">Rutas registradas ({{rutas.length}})</h2>
+
+      {{#each rutas}}
+        <div class="route-card">
+          <div class="route-head">
+            <span class="route-name">{{this.nombre}}</span>
+            <span class="freq-pill">cada {{this.frecuencia}} min</span>
+          </div>
+          <ul class="stops-list">
+            {{#each this.paradas}}
+              <li>
+                <span></span>
+                <span>{{this.nombre}} <span class="stop-streets">— {{this.calle_principal}} y {{this.calle_secundaria}}</span></span>
+                <span class="stop-time">{{this.tiempo}} min</span>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      {{else}}
+        <div class="empty">Todavía no hay rutas registradas. Usa el formulario de arriba para agregar la primera.</div>
+      {{/each}}
+    </section>
+  </div>
+</body>
+</html>
