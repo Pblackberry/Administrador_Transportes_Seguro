@@ -3,7 +3,7 @@ import { KmsService } from '../kms/kms.service';
 import { RutasService } from '../rutas/rutas.service';
 import { rutasACsv } from './csv.util';
 
-@Controller('sync')
+@Controller('api/rutas/seguro')
 export class SyncController {
   private readonly logger = new Logger(SyncController.name);
 
